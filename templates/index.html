@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Text Extractor</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .drag-area {
+            border: 2px dashed #4a5568;
+            transition: all 0.3s ease;
+        }
+        .drag-area.active {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+        .confidence-bar {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .confidence-level {
+            height: 100%;
+            background-color: #4299e1;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">PDF Text Extractor</h1>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="drag-area p-8 text-center cursor-pointer rounded-lg" id="dropZone">
+                    <div class="text-gray-600">
+                        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <p class="text-lg mb-2">Drag & Drop your PDF here</p>
+                        <p class="text-sm text-gray-500">or</p>
+                        <label class="mt-2 inline-block">
+                            <span class="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors">
+                                Browse Files
+                            </span>
+                            <input type="file" id="fileInput" class="hidden" accept=".pdf">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result" class="hidden">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Extracted Text</h2>
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <pre id="extractedText" class="whitespace-pre-wrap text-gray-700"></pre>
+                    </div>
+                    <div class="flex justify-end">
+                        <a id="downloadLink" href="#" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                            Download Text
+                        </a>
+                    </div>
+                </div>
+                
+                <div id="grantsSection" class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Potential Grant Names</h2>
+                    <div id="grantsList" class="space-y-4">
+                        <!-- Grant items will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="error" class="hidden">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline" id="errorMessage"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const result = document.getElementById('result');
+        const extractedText = document.getElementById('extractedText');
+        const downloadLink = document.getElementById('downloadLink');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
+        const grantsSection = document.getElementById('grantsSection');
+        const grantsList = document.getElementById('grantsList');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            dropZone.classList.add('active');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('active');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files: files } });
+        }
+
+        function handleFiles(e) {
+            const file = e.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                uploadFile(file);
+            } else {
+                showError('Please upload a PDF file');
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data.text, data.download_url, data.potential_grants);
+                }
+            })
+            .catch(error => {
+                showError('An error occurred while processing the file');
+            });
+        }
+
+        function showResult(text, downloadUrl, potentialGrants) {
+            extractedText.textContent = text;
+            downloadLink.href = downloadUrl;
+            result.classList.remove('hidden');
+            error.classList.add('hidden');
+            
+            // Display potential grants
+            displayGrants(potentialGrants);
+        }
+        
+        function displayGrants(grants) {
+            grantsList.innerHTML = '';
+            
+            if (grants && grants.length > 0) {
+                grantsSection.classList.remove('hidden');
+                
+                grants.forEach(grant => {
+                    const confidencePercentage = Math.round(grant.confidence * 100);
+                    const confidenceColor = getConfidenceColor(grant.confidence);
+                    
+                    const grantItem = document.createElement('div');
+                    grantItem.className = 'bg-gray-50 rounded-lg p-4';
+                    grantItem.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-semibold text-gray-800">${grant.name}</h3>
+                            <span class="text-sm font-medium ${confidenceColor}">${confidencePercentage}%</span>
+                        </div>
+                        <div class="confidence-bar mb-2">
+                            <div class="confidence-level" style="width: ${confidencePercentage}%; background-color: ${getConfidenceColor(grant.confidence)};"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 italic">${grant.context}</p>
+                    `;
+                    
+                    grantsList.appendChild(grantItem);
+                });
+            } else {
+                grantsSection.classList.add('hidden');
+            }
+        }
+        
+        function getConfidenceColor(confidence) {
+            if (confidence >= 0.8) {
+                return 'text-green-600';
+            } else if (confidence >= 0.6) {
+                return 'text-blue-600';
+            } else if (confidence >= 0.4) {
+                return 'text-yellow-600';
+            } else {
+                return 'text-red-600';
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            error.classList.remove('hidden');
+            result.classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 
