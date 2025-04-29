@@ -332,6 +332,20 @@
                 const projectItem = document.createElement('div');
                 projectItem.className = 'space-y-2';
                 
+                // Add confidence score
+                const confidencePercentage = Math.round(project.confidence * 100);
+                const confidenceColor = getConfidenceColor(project.confidence);
+                
+                projectItem.innerHTML += `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-gray-800">Project Information</h3>
+                        <span class="text-sm font-medium ${confidenceColor}">${confidencePercentage}%</span>
+                    </div>
+                    <div class="confidence-bar mb-2">
+                        <div class="confidence-level" style="width: ${confidencePercentage}%; background-color: ${getConfidenceColor(project.confidence)};"></div>
+                    </div>
+                `;
+                
                 if (project.title) {
                     projectItem.innerHTML += `
                         <div>
@@ -363,6 +377,20 @@
             if (dates.start_date || dates.end_date || dates.yearly_dates.length > 0) {
                 const datesItem = document.createElement('div');
                 datesItem.className = 'space-y-2';
+                
+                // Add confidence score
+                const confidencePercentage = Math.round(dates.confidence * 100);
+                const confidenceColor = getConfidenceColor(dates.confidence);
+                
+                datesItem.innerHTML += `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-gray-800">Date Information</h3>
+                        <span class="text-sm font-medium ${confidenceColor}">${confidencePercentage}%</span>
+                    </div>
+                    <div class="confidence-bar mb-2">
+                        <div class="confidence-level" style="width: ${confidencePercentage}%; background-color: ${getConfidenceColor(dates.confidence)};"></div>
+                    </div>
+                `;
                 
                 if (dates.start_date && dates.end_date) {
                     datesItem.innerHTML += `
@@ -401,9 +429,18 @@
                 financialItem.className = 'space-y-2';
                 
                 for (const [category, data] of Object.entries(financial)) {
+                    const confidencePercentage = Math.round(data.confidence * 100);
+                    const confidenceColor = getConfidenceColor(data.confidence);
+                    
                     financialItem.innerHTML += `
-                        <div>
-                            <h3 class="font-semibold text-gray-800">${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-gray-800">${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                                <span class="text-sm font-medium ${confidenceColor}">${confidencePercentage}%</span>
+                            </div>
+                            <div class="confidence-bar mb-2">
+                                <div class="confidence-level" style="width: ${confidencePercentage}%; background-color: ${getConfidenceColor(data.confidence)};"></div>
+                            </div>
                             <p class="text-gray-600">$${data.value.toLocaleString()}</p>
                             <p class="text-sm text-gray-500 italic">${data.context}</p>
                         </div>

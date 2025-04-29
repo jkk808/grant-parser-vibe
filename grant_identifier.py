@@ -288,12 +288,23 @@ def identify_potential_grants(text):
         if name not in unique_grants or grant['confidence'] > unique_grants[name]['confidence']:
             unique_grants[name] = grant
     
-    sorted_grants = sorted(unique_grants.values(), key=lambda x: x['confidence'], reverse=True)
+    # Sort by confidence and limit to top 3
+    sorted_grants = sorted(unique_grants.values(), key=lambda x: x['confidence'], reverse=True)[:3]
     
-    # Extract additional information
+    # Extract additional information with confidence scores
     dates = extract_dates(text)
     financial = extract_financial_fields(text)
     project = extract_project_info(text)
+    
+    # Add confidence scores to dates
+    dates['confidence'] = calculate_dates_confidence(dates)
+    
+    # Add confidence scores to financial fields
+    for field, data in financial.items():
+        data['confidence'] = calculate_financial_confidence(data['value'], data['context'])
+    
+    # Add confidence scores to project info
+    project['confidence'] = calculate_project_confidence(project)
     
     return {
         'grants': sorted_grants,
@@ -301,6 +312,70 @@ def identify_potential_grants(text):
         'financial': financial,
         'project': project
     }
+
+def calculate_dates_confidence(dates):
+    """Calculate confidence score for dates extraction."""
+    confidence = 0.0
+    factors = 0
+    
+    if dates['start_date']:
+        confidence += 0.4
+        factors += 1
+    
+    if dates['end_date']:
+        confidence += 0.4
+        factors += 1
+    
+    if dates['yearly_dates']:
+        confidence += 0.2
+        factors += 1
+    
+    return confidence / max(factors, 1)
+
+def calculate_financial_confidence(value, context):
+    """Calculate confidence score for financial field extraction."""
+    confidence = 0.0
+    
+    # Higher confidence for larger values
+    if value > 1000000:
+        confidence += 0.4
+    elif value > 100000:
+        confidence += 0.3
+    elif value > 10000:
+        confidence += 0.2
+    else:
+        confidence += 0.1
+    
+    # Higher confidence for longer context
+    context_length = len(context)
+    if context_length > 200:
+        confidence += 0.3
+    elif context_length > 100:
+        confidence += 0.2
+    elif context_length > 50:
+        confidence += 0.1
+    
+    # Higher confidence if context contains financial keywords
+    financial_keywords = ['budget', 'cost', 'funding', 'grant', 'award', 'allocation']
+    keyword_count = sum(1 for keyword in financial_keywords if keyword.lower() in context.lower())
+    confidence += min(keyword_count * 0.1, 0.3)
+    
+    return min(confidence, 1.0)
+
+def calculate_project_confidence(project):
+    """Calculate confidence score for project information extraction."""
+    confidence = 0.0
+    factors = 0
+    
+    if project['title']:
+        confidence += 0.6
+        factors += 1
+    
+    if project['description']:
+        confidence += 0.4
+        factors += 1
+    
+    return confidence / max(factors, 1)
 
 def extract_grant_name_from_sentence(sentence):
     """Extract a potential grant name from a sentence using heuristics."""
