@@ -26,6 +26,38 @@
             border-radius: 4px;
             transition: width 0.5s ease;
         }
+        .loading {
+            position: relative;
+        }
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .loading::before {
+            content: "Processing...";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            font-weight: bold;
+            color: #4299e1;
+        }
+        .section-toggle {
+            transition: transform 0.3s ease;
+        }
+        .section-toggle.rotate-180 {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -52,22 +84,106 @@
             </div>
 
             <div id="result" class="hidden">
+                <!-- Project Information Section -->
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Extracted Text</h2>
-                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                        <pre id="extractedText" class="whitespace-pre-wrap text-gray-700"></pre>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Project Information</h2>
+                        <button class="section-toggle bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center" data-target="projectSection">
+                            <span>Show Details</span>
+                            <svg class="w-4 h-4 ml-2 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
-                    <div class="flex justify-end">
-                        <a id="downloadLink" href="#" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                            Download Text
-                        </a>
+                    <div id="projectSection" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div id="projectInfo" class="space-y-4">
+                                <!-- Project info will be inserted here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div id="grantsSection" class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Potential Grant Names</h2>
-                    <div id="grantsList" class="space-y-4">
-                        <!-- Grant items will be inserted here -->
+
+                <!-- Dates Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Project Dates</h2>
+                        <button class="section-toggle bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center" data-target="datesSection">
+                            <span>Show Details</span>
+                            <svg class="w-4 h-4 ml-2 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="datesSection" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div id="datesInfo" class="space-y-4">
+                                <!-- Dates info will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Information Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Financial Information</h2>
+                        <button class="section-toggle bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center" data-target="financialSection">
+                            <span>Show Details</span>
+                            <svg class="w-4 h-4 ml-2 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="financialSection" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div id="financialInfo" class="space-y-4">
+                                <!-- Financial info will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grants Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Potential Grant Names</h2>
+                        <button class="section-toggle bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center" data-target="grantsSection">
+                            <span>Show Details</span>
+                            <svg class="w-4 h-4 ml-2 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="grantsSection" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div id="grantsList" class="space-y-4">
+                                <!-- Grant items will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extracted Text Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Extracted Text</h2>
+                        <button class="section-toggle bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center" data-target="extractedTextSection">
+                            <span>Show Text</span>
+                            <svg class="w-4 h-4 ml-2 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="extractedTextSection" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <pre id="extractedText" class="whitespace-pre-wrap text-gray-700"></pre>
+                        </div>
+                        <div class="flex justify-end">
+                            <a id="downloadLink" href="#" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                Download Text
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,6 +191,12 @@
             <div id="error" class="hidden">
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                     <span class="block sm:inline" id="errorMessage"></span>
+                </div>
+            </div>
+            
+            <div id="success" class="hidden">
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline" id="successMessage"></span>
                 </div>
             </div>
         </div>
@@ -88,8 +210,9 @@
         const downloadLink = document.getElementById('downloadLink');
         const error = document.getElementById('error');
         const errorMessage = document.getElementById('errorMessage');
-        const grantsSection = document.getElementById('grantsSection');
-        const grantsList = document.getElementById('grantsList');
+        const success = document.getElementById('success');
+        const successMessage = document.getElementById('successMessage');
+        let currentGrants = [];
 
         // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -109,6 +232,19 @@
         // Handle dropped files
         dropZone.addEventListener('drop', handleDrop, false);
         fileInput.addEventListener('change', handleFiles, false);
+
+        // Add event listeners for section toggles
+        document.querySelectorAll('.section-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const targetSection = document.getElementById(targetId);
+                const isHidden = targetSection.classList.contains('hidden');
+                
+                targetSection.classList.toggle('hidden');
+                button.querySelector('span').textContent = isHidden ? 'Hide Details' : 'Show Details';
+                button.querySelector('svg').classList.toggle('rotate-180');
+            });
+        });
 
         function preventDefaults (e) {
             e.preventDefault();
@@ -141,46 +277,156 @@
         function uploadFile(file) {
             const formData = new FormData();
             formData.append('file', file);
-
+            
+            // Show loading state
+            dropZone.classList.add('loading');
+            
             fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
+                // Remove loading state
+                dropZone.classList.remove('loading');
+                
                 if (data.error) {
                     showError(data.error);
                 } else {
-                    showResult(data.text, data.download_url, data.potential_grants);
+                    currentGrants = data.grants;
+                    showResult(data);
                 }
             })
             .catch(error => {
+                // Remove loading state
+                dropZone.classList.remove('loading');
                 showError('An error occurred while processing the file');
             });
         }
-
-        function showResult(text, downloadUrl, potentialGrants) {
-            extractedText.textContent = text;
-            downloadLink.href = downloadUrl;
+        
+        function showResult(data) {
+            extractedText.textContent = data.text;
+            downloadLink.href = data.download_url;
             result.classList.remove('hidden');
             error.classList.add('hidden');
+            success.classList.add('hidden');
             
-            // Display potential grants
-            displayGrants(potentialGrants);
+            // Display project information
+            displayProjectInfo(data.project);
+            
+            // Display dates
+            displayDates(data.dates);
+            
+            // Display financial information
+            displayFinancialInfo(data.financial);
+            
+            // Display grants
+            displayGrants(data.grants);
+        }
+        
+        function displayProjectInfo(project) {
+            const projectInfo = document.getElementById('projectInfo');
+            projectInfo.innerHTML = '';
+            
+            if (project.title || project.description) {
+                const projectItem = document.createElement('div');
+                projectItem.className = 'space-y-2';
+                
+                if (project.title) {
+                    projectItem.innerHTML += `
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Project Title</h3>
+                            <p class="text-gray-600">${project.title}</p>
+                        </div>
+                    `;
+                }
+                
+                if (project.description) {
+                    projectItem.innerHTML += `
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Project Description</h3>
+                            <p class="text-gray-600">${project.description}</p>
+                        </div>
+                    `;
+                }
+                
+                projectInfo.appendChild(projectItem);
+            } else {
+                projectInfo.innerHTML = '<p class="text-gray-500 italic">No project information found</p>';
+            }
+        }
+        
+        function displayDates(dates) {
+            const datesInfo = document.getElementById('datesInfo');
+            datesInfo.innerHTML = '';
+            
+            if (dates.start_date || dates.end_date || dates.yearly_dates.length > 0) {
+                const datesItem = document.createElement('div');
+                datesItem.className = 'space-y-2';
+                
+                if (dates.start_date && dates.end_date) {
+                    datesItem.innerHTML += `
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Project Period</h3>
+                            <p class="text-gray-600">${dates.start_date} to ${dates.end_date}</p>
+                        </div>
+                    `;
+                }
+                
+                if (dates.yearly_dates.length > 0) {
+                    datesItem.innerHTML += `
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Yearly Breakdown</h3>
+                            <div class="space-y-1">
+                                ${dates.yearly_dates.map(year => `
+                                    <p class="text-gray-600">${year.start} to ${year.end}</p>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                datesInfo.appendChild(datesItem);
+            } else {
+                datesInfo.innerHTML = '<p class="text-gray-500 italic">No date information found</p>';
+            }
+        }
+        
+        function displayFinancialInfo(financial) {
+            const financialInfo = document.getElementById('financialInfo');
+            financialInfo.innerHTML = '';
+            
+            if (Object.keys(financial).length > 0) {
+                const financialItem = document.createElement('div');
+                financialItem.className = 'space-y-2';
+                
+                for (const [category, data] of Object.entries(financial)) {
+                    financialItem.innerHTML += `
+                        <div>
+                            <h3 class="font-semibold text-gray-800">${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                            <p class="text-gray-600">$${data.value.toLocaleString()}</p>
+                            <p class="text-sm text-gray-500 italic">${data.context}</p>
+                        </div>
+                    `;
+                }
+                
+                financialInfo.appendChild(financialItem);
+            } else {
+                financialInfo.innerHTML = '<p class="text-gray-500 italic">No financial information found</p>';
+            }
         }
         
         function displayGrants(grants) {
+            const grantsList = document.getElementById('grantsList');
             grantsList.innerHTML = '';
             
             if (grants && grants.length > 0) {
-                grantsSection.classList.remove('hidden');
-                
-                grants.forEach(grant => {
+                grants.forEach((grant, index) => {
                     const confidencePercentage = Math.round(grant.confidence * 100);
                     const confidenceColor = getConfidenceColor(grant.confidence);
                     
                     const grantItem = document.createElement('div');
-                    grantItem.className = 'bg-gray-50 rounded-lg p-4';
+                    grantItem.className = 'bg-white rounded-lg p-4 border border-gray-200';
                     grantItem.innerHTML = `
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-semibold text-gray-800">${grant.name}</h3>
@@ -189,14 +435,51 @@
                         <div class="confidence-bar mb-2">
                             <div class="confidence-level" style="width: ${confidencePercentage}%; background-color: ${getConfidenceColor(grant.confidence)};"></div>
                         </div>
-                        <p class="text-sm text-gray-600 italic">${grant.context}</p>
+                        <p class="text-sm text-gray-600 italic mb-3">${grant.context}</p>
+                        <div class="flex justify-end">
+                            <button class="save-grant-btn bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors" data-index="${index}">
+                                Save to Database
+                            </button>
+                        </div>
                     `;
                     
                     grantsList.appendChild(grantItem);
                 });
+                
+                // Add event listeners to save buttons
+                document.querySelectorAll('.save-grant-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        saveGrantToDatabase(currentGrants[index]);
+                    });
+                });
             } else {
-                grantsSection.classList.add('hidden');
+                grantsList.innerHTML = '<p class="text-gray-500 italic">No potential grants found</p>';
             }
+        }
+        
+        function saveGrantToDatabase(grant) {
+            fetch('/save_grant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    grant_name: grant.name,
+                    context: grant.context
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showSuccess('Grant saved to database successfully');
+                }
+            })
+            .catch(error => {
+                showError('An error occurred while saving the grant');
+            });
         }
         
         function getConfidenceColor(confidence) {
@@ -214,7 +497,18 @@
         function showError(message) {
             errorMessage.textContent = message;
             error.classList.remove('hidden');
-            result.classList.add('hidden');
+            success.classList.add('hidden');
+        }
+        
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            success.classList.remove('hidden');
+            error.classList.add('hidden');
+            
+            // Hide success message after 3 seconds
+            setTimeout(() => {
+                success.classList.add('hidden');
+            }, 3000);
         }
     </script>
 </body>

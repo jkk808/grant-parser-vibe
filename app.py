@@ -2,7 +2,9 @@ import os
 from flask import Flask, request, render_template, jsonify, send_file
 from werkzeug.utils import secure_filename
 from pdf_extractor import extract_text_from_pdf
-from grant_identifier import identify_potential_grants
+from grant_identifier import identify_potential_grants, add_to_database
+import json
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -39,8 +41,8 @@ def upload_file():
         extracted_text = extract_text_from_pdf(filepath)
         
         if extracted_text:
-            # Identify potential grants in the extracted text
-            potential_grants = identify_potential_grants(extracted_text)
+            # Identify potential grants and extract additional information
+            result = identify_potential_grants(extracted_text)
             
             # Save extracted text to a file
             output_filename = os.path.splitext(filename)[0] + "_extracted.txt"
@@ -49,11 +51,29 @@ def upload_file():
             with open(output_filepath, 'w', encoding='utf-8') as f:
                 f.write(extracted_text)
             
+            # Format dates for JSON serialization
+            if result['dates']['start_date']:
+                result['dates']['start_date'] = result['dates']['start_date'].strftime('%Y-%m-%d')
+            if result['dates']['end_date']:
+                result['dates']['end_date'] = result['dates']['end_date'].strftime('%Y-%m-%d')
+            
+            # Format yearly dates
+            formatted_yearly_dates = []
+            for date_range in result['dates']['yearly_dates']:
+                formatted_yearly_dates.append({
+                    'start': date_range['start'].strftime('%Y-%m-%d'),
+                    'end': date_range['end'].strftime('%Y-%m-%d')
+                })
+            result['dates']['yearly_dates'] = formatted_yearly_dates
+            
             return jsonify({
                 'success': True,
                 'text': extracted_text,
                 'download_url': f'/download/{output_filename}',
-                'potential_grants': potential_grants
+                'grants': result['grants'],
+                'dates': result['dates'],
+                'financial': result['financial'],
+                'project': result['project']
             })
         else:
             return jsonify({'error': 'Failed to extract text from PDF'}), 500
@@ -62,10 +82,16 @@ def upload_file():
 
 @app.route('/download/<filename>')
 def download_file(filename):
-    return send_file(
-        os.path.join(app.config['UPLOAD_FOLDER'], filename),
-        as_attachment=True
-    )
+    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=True)
+
+@app.route('/save_grant', methods=['POST'])
+def save_grant():
+    data = request.json
+    if not data or 'grant_name' not in data or 'context' not in data:
+        return jsonify({'error': 'Missing required fields'}), 400
+    
+    add_to_database(data['grant_name'], data['context'])
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(debug=True) 
