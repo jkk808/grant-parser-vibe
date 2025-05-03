@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Grant Parser</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 40px; padding-bottom: 40px; background-color: #f5f5f5; }
+        .container { max-width: 600px; }
+        .form-signin {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .form-signin .form-floating:focus-within { z-index: 2; }
+        .form-signin input[type="file"] { margin-bottom: 10px; }
+        h1 { text-align: center; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <form class="form-signin" action="/process" method="post" enctype="multipart/form-data">
+            <h1>Upload Grant Document</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="form-floating mb-3">
+                <input type="file" class="form-control" id="file" name="file" required>
+                <label for="file">Select Document (PDF, PNG, JPG, TIFF)</label>
+            </div>
+
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Process Document</button>
+            <p class="mt-5 mb-3 text-muted text-center">&copy; Grant Parser {{ year }}</p>
+        </form>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
